@@ -1,0 +1,47 @@
+{% extends 'base.html.twig' %}
+    {% block title %}{{ post.title }} {{ parent() }}{% endblock %}
+    {% block stylesheets %}{{ parent() }}{% endblock %}
+    {% block content %}
+        <div class="col-lg-8">
+
+            <!-- Blog Post -->
+
+            <!-- Title -->
+            <h1><a href="{{ path('_showpost',{id:post.id}) }}">{{ post.title|capitalize }} </a></h1>
+
+            <!-- Author -->
+            <p class="lead">
+                by <a href="#">{{ post.author.username }}</a>
+            </p>
+
+            <hr>
+
+            <!-- Date/Time -->
+            <p><span class="glyphicon glyphicon-time"></span>
+                Posted on {{ post.creationdate|date }}
+                {% if is_granted('ROLE_BLOGGER') %}
+                    <span class="pull-right"><a href="{{ path('_editpost',{id:post.id}) }}">Edit</a></span>
+                {% endif %}
+            </p>
+            {% if not post.lastedit is null %}
+                <p><span class="glyphicon glyphicon-time"></span>
+                    Last Edit on {{ post.lastedit|date }}
+                </p>
+            {% endif %}
+
+            <hr>
+
+            <!-- Preview Image -->
+            {% if not post.path is null %}
+                <img class="img-responsive" src="{{ asset('uploads/docs/'~post.path) }}" alt="">
+            {% endif %}
+            <hr>
+
+            <!-- Post Content -->
+            <p class="lead">{{ post.content|raw }}</p>
+
+            <hr>
+
+        </div>
+    {% endblock %}
+{% block javascripts %}{{ parent() }}{% endblock %}

@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8" />
+        <link rel="stylesheet" href="//code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
+        <title>{% block title %}- Studima{% endblock %}</title>
+        {% block stylesheets %}
+            <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.2/css/select2.min.css" rel="stylesheet" />
+            <link rel="stylesheet" href="{{ asset('bundles/business/css/select2-bootstrap.css') }}">
+            {% stylesheets '@HomeBundle/Resources/public/css/bootstrap.min.css' '@HomeBundle/Resources/public/css/bootstrap-theme.min.css' '@HomeBundle/Resources/public/css/main.css'
+            filter='cssrewrite' %}
+            <link rel="stylesheet" href="{{ asset('bundles/avanzuadmintheme/static/'~ app.environment ~'/styles/admin-lte-all.css') }}" />
+            <link rel="stylesheet" href="{{ asset_url }}" />
+            {% endstylesheets %}
+        {% endblock %}
+        <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}" />
+    </head>
+    <body>
+        {% block body %}
+            {% block navbar %}
+                <nav class="navbar navbar-inverse navbar-fixed-top">
+                    <div class="container-fluid">
+                        <!-- Brand and toggle get grouped for better mobile display -->
+                        <div class="navbar-header">
+                            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+                                <span class="sr-only">Toggle navigation</span>
+                                <span class="icon-bar"></span>
+                                <span class="icon-bar"></span>
+                                <span class="icon-bar"></span>
+                            </button>
+                            <a class="navbar-brand" href="{{ path("homepage") }}">
+                                {% image '@HomeBundle/Resources/public/images/brand.png' %}
+                                    <img src="{{ asset_url }}" alt="Studima" id="logo" height="50px" width="50px" />
+                                {% endimage %}
+                            </a>
+                        </div>
+
+                        <!-- Collect the nav links, forms, and other content for toggling -->
+                        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                            <ul class="nav navbar-nav">
+                                <li class="{% if app.request.attributes.get('_route') == '_newpost' %}active{% endif %}"><a href="{{ path("_newpost") }}">Nouveau post</a></li>
+                                <li class="{% if app.request.attributes.get('_route') == '_newbusiness' %}active{% endif %}"><a href="{{ path("_newbusiness") }}">Nouveau Point</a></li>
+                            </ul>
+                                <div class="form-group col-xs-3 search">
+                                    <input type="text" id="search" class="form-control" placeholder="Chercher">
+                                </div>
+                            <ul class="nav navbar-nav navbar-right">
+                                {% if not app.user %}
+                                <li><a href="{{ path('fos_user_registration_register') }}">S'inscrire</a></li>
+                                <li><a href="{{ path('fos_user_security_login') }}">Se connecter</a></li>
+                                {% endif %}
+                                {% if app.user %}
+                                <li class="dropdown">
+                                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+                                        <img src="{% if app.user.profilePicturePath is null %}{{ asset('uploads/profilepics/default.png') }}{% else %}{{ asset('uploads/profilepics/'~app.user.profilePicturePath) }}" alt="{{ app.user.username }}{% endif %}" alt="{{ app.user.username }}" width="25px" height="25px">
+                                        {{ app.user.username }}
+                                        <span class="caret"></span>
+                                    </a>
+                                    <ul class="dropdown-menu text-center">
+                                        {% if is_granted('ROLE_ADMIN') %}
+                                            <li><a href="{{ path('administration') }}">Panneau d'administration</a></li>
+                                        {% endif %}
+                                        {% if is_granted('ROLE_BUSINESS_OWNER') %}
+                                            <li><a href="{{ path('_dashboard') }}">Espace Propriétaire</a></li>
+                                        {% endif %}
+                                        <li><a href="{{ path('fos_user_profile_show') }}">Profile</a></li>
+                                        <li><a href="{{ path('fos_user_profile_edit') }}">Modifier profile</a></li>
+                                        <li><a href="{{ path('fos_user_security_logout') }}">Se déconnecter</a></li>
+                                    </ul>
+                                </li>
+                                {% endif %}
+                            </ul>
+                        </div><!-- /.navbar-collapse -->
+                    </div><!-- /.container-fluid -->
+                </nav>
+            {% endblock %} {#//.navbar#}
+            <div class="col-md-12">
+                {% block mainmap %}
+                    {{ render(controller('BusinessBundle:Default:filters')) }}
+                {% endblock %}
+                {% for flash_message in app.session.flashbag.get('success') %}
+                    <div class="alert alert-success alert-dismissable col-lg-6 center-block">
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        {{ flash_message }}
+                    </div>
+                {% endfor %}
+
+                {% block content %}
+                {% endblock %}{#//.content#}
+            </div>
+        {% endblock %}{#//.body#}
+        {% block javascripts %}
+            {% javascripts
+            '@HomeBundle/Resources/public/js/jquery-2.2.2.js' '@HomeBundle/Resources/public/js/bootstrap.js' '@HomeBundle/Resources/public/js/bootstrap.js' '@HomeBundle/Resources/public/js/main.js' '@HomeBundle/Resources/public/js/dateformat.js' %}
+            <script src="{{ asset_url }}"></script>
+            <script src="{{ asset('bundles/fosjsrouting/js/router.js') }}"></script>
+            <script src="{{ path('fos_js_routing_js', {'callback': 'fos.Router.setData'}) }}"></script>
+            <script src="http://code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+            {% endjavascripts %}
+        {% endblock %}
+        <script>
+            $(function(){
+                $("#search").autocomplete({
+                    source: "{{ path('_searchpost') }}",
+                    minLength: 3,
+                    select: function (event, ui) {
+                        window.location.replace($.get(Routing.generate('_showpost', { id: ui.item.id })));
+                        console.log($.get(Routing.generate('_showpost', { id: ui.item.id })))
+                    },
+                    open: function () {
+                        $(this).removeClass("ui-corner-all").addClass("ui-corner-top");
+                    },
+                    close: function () {
+                        $(this).removeClass("ui-corner-top").addClass("ui-corner-all");
+                    }
+                }).autocomplete( "instance" )._renderItem = function( ul, item ) {
+
+                    return $( "<li>" )
+                            .append( "<strong><a style='font-size: 1.1em' href='"+Routing.generate('_showpost', { id: item.id })+"'>" + item.title + "</strong><br><small>" + dateFormat(item.creationDate.date,"dddd, mmmm dS, yyyy, h:MM:ss TT") + "</a>" )
+                            .appendTo( ul );
+                };
+            });
+
+        </script>
+        {% block mainmapscript %}
+            <script>
+                var markers = [];
+                function initMap() {
+                    var myLatLng = {lat: 34.0, lng: -6.8 };
+                    var marker;
+                    // Create a map object and specify the DOM element for display.
+                    var styleArray;
+                    var map = new google.maps.Map(document.getElementById('mainmap'), {
+                        center: myLatLng,
+                        scrollwheel: false,
+                        zoom: 11,
+                        disableDoubleClickZoom: true
+                    });
+                    var getVars = [];
+                    var activeinfowindow = new google.maps.InfoWindow();
+                    $.getJSON(""+Routing.generate('_businessesapi', {  })+"",getVars, function (json) {
+                        $.each(json, function(key, data) {
+                           var imageMarqueur = new google.maps.MarkerImage("{{ asset('uploads/pins/') }}"+data.category.logo, new google.maps.Size(60, 60), new google.maps.Point(0,1), new google.maps.Point(20, 60));
+                            lat = Number(data.lng);
+                            lng = Number(data.lat);
+                            var myLatLng = {lat: lng, lng: lat};
+                            var infowindow = new google.maps.InfoWindow({
+                                content: '<h4 class="media-heading">'+data.name+'</h4><div class="row" style="margin: 0"><div class="col-md-6"><p class="list-group-item-text">'+data.address+'</p></div><div class="col-md-6 pull-right"><a href="'+Routing.generate('_showbusiness', {id : data.id  })+'" class="thumbnail"><img class="" src="/uploads/businesses/'+data.image+'" alt="..."></a></div></div><a class="btn btn-success btn-block" href="'+Routing.generate('_showbusiness', {id : data.id  })+'">Learn More</a>',
+                                maxWidth : 220
+                            });
+
+                            // Creating a marker and putting it on the map
+                            var marker = new google.maps.Marker({
+                                position: myLatLng,
+                                map : map,
+                                title: data.nom,
+                                icon : imageMarqueur,
+                                animation: google.maps.Animation.DROP
+                            });
+                            marker.addListener('click', function() {
+                                if(activeinfowindow != null)
+                                    activeinfowindow.close();
+                                //Open new window
+                                infowindow.open(map,marker);
+                                //Store new window in global variable
+                                activeinfowindow = infowindow;
+                            });
+                        });
+                    });
+                }
+                // Sets the map on all markers in the array.
+                function setMapOnAll(map) {
+                    for (var i = 0; i < markers.length; i++) {
+                        markers[i].setMap(map);
+                    }
+                }
+
+                // Removes the markers from the map, but keeps them in the array.
+                function clearMarkers() {
+                    setMapOnAll(null);
+                }
+
+                // Deletes all markers in the array by removing references to them.
+                function deleteMarkers() {
+                    clearMarkers();
+                    markers = [];
+                }
+                function filter(getVars){
+                    var myLatLng = {lat: 34.0, lng: -6.8 };
+                    var marker;
+                    var map = new google.maps.Map(document.getElementById('mainmap'), {
+                        center: myLatLng,
+                        scrollwheel: false,
+                        zoom: 11,
+                        disableDoubleClickZoom: true
+                    });
+                    var activeinfowindow = new google.maps.InfoWindow();
+                    $.getJSON(""+Routing.generate('_businessesapi', {  })+"",getVars, function (json) {
+                        $.each(json, function(key, data) {
+                            var imageMarqueur = new google.maps.MarkerImage("{{ asset('uploads/pins/') }}"+data.category.logo, new google.maps.Size(60, 60), new google.maps.Point(0,1), new google.maps.Point(20, 60));
+                            lat = Number(data.lng);
+                            lng = Number(data.lat);
+                            var myLatLng = {lat: lng, lng: lat};
+                            var infowindow = new google.maps.InfoWindow({
+                                content: '<h4 class="media-heading">'+data.name+'</h4><div class="row" style="margin: 0"><div class="col-md-6"><p class="list-group-item-text">'+data.address+'</p></div><div class="col-md-6 pull-right"><a href="'+Routing.generate('_showbusiness', {id : data.id  })+'" class="thumbnail"><img class="" src="/uploads/businesses/'+data.image+'" alt="..."></a></div></div><a class="btn btn-success btn-block" href="'+Routing.generate('_showbusiness', {id : data.id  })+'">Learn More</a>',
+                                maxWidth : 220
+                            });
+
+                            // Creating a marker and putting it on the map
+                            var marker = new google.maps.Marker({
+                                position: myLatLng,
+                                map : map,
+                                title: data.nom,
+                                icon : imageMarqueur,
+                                animation: google.maps.Animation.DROP
+                            });
+                            markers.push(marker);
+                            marker.addListener('click', function() {
+                                if(activeinfowindow != null)
+                                    activeinfowindow.close();
+                                //Open new window
+                                infowindow.open(map,marker);
+                                //Store new window in global variable
+                                activeinfowindow = infowindow;
+                            });
+                        });
+                    });
+                }
+            </script>
+        {% endblock %}
+        <script async defer
+                src="https://maps.googleapis.com/maps/api/js?libraries=places&key=AIzaSyDiBZbkfj5jjX5lsihBDY1ShMceYzqG_p4&callback=initMap">
+        </script>
+        <script src="{{ asset('bundles/business/js/select2.full.min.js') }}"></script>
+        <script src="https://npmcdn.com/masonry-layout@4.1/dist/masonry.pkgd.min.js"></script>
+        <script>
+            $(function(){
+                $('.grid').masonry({
+                    itemSelector: '.item',
+                    columnWidth: '.item'
+                });
+                $('#category').select2({
+                    theme : "bootstrap",
+                    width : '33.33%',
+                    placeholder: 'Catégorie'
+                });
+                $('#city').select2({
+                    theme : "bootstrap",
+                    width : '33.33%',
+                    placeholder: 'Ville'
+                });
+                $('#filter').on('click', function () {
+                    var city =  $('#city').val();
+                    var category =  $('#category').val();
+                    var getVars = {'city':city,'category':category};
+                    console.log(getVars)
+                    clearMarkers();
+                    filter(getVars);
+                });
+            })
+        </script>
+    </body>
+</html>

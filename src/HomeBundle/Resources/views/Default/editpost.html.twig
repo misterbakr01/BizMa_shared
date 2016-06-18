@@ -1,0 +1,11 @@
+{% extends 'base.html.twig' %}
+{% block title %}{{ 'Edit post ' ~ parent() }}{% endblock %}
+{% block stylesheets %}{{ parent() }}{% endblock %}
+{% block content %}
+    {{ form_start(form) }}
+    {{ form_widget(form.submit,{'label':'Update'}) }}
+    {{ form_end(form) }}
+{% endblock content %}
+{% block javascripts %} {{ parent() }}
+    {{ tinymce_init() }}
+{% endblock javascripts %}

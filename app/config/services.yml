@@ -1,0 +1,23 @@
+# Learn more about services, parameters and containers at
+# http://symfony.com/doc/current/book/service_container.html
+parameters:
+#    parameter_name: value
+    my_admin_bundle.show_user_listener.class: AdminBundle\EventListener\ShowUserListener
+
+services:
+#    service_name:
+#        class: AppBundle\Directory\ClassName
+#        arguments: ["@another_service_name", "plain_value", "%parameter_name%"]
+    app.form.profile:
+        class: AppBundle\UserBundle\Form\ProfileType
+        tags:
+            - { name: form.type, alias: app_user_profile_edit }
+    app.registration.form.type:
+        class: AppBundle\UserBundle\Form\Type\RegistrationFormType
+        arguments: ['%fos_user.model.user.class%','%security.role_hierarchy.roles%']
+        tags:
+         - { name: form.type, alias: app_user_registration }
+    business.form.category:
+        class: BusinessBundle\Form\CategoryType
+        tags:
+            - { name: form.type, alias: business_category }

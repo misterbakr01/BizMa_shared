@@ -1,0 +1,365 @@
+{% extends 'base.html.twig' %}
+    {% block title %}{{ business.name }} {{ parent() }}{% endblock %}
+    {% block stylesheets %}
+        {{ parent() }}
+        <link rel="stylesheet" href="{{ asset('bundles/business/css/rating/star-rating.min.css') }}">
+        <link rel="stylesheet" href="{{ asset('bundles/business/css/bootstrap-switch.min.css') }}">
+        <style>
+            #map {
+                height: 250px;
+                width:100%;
+            }
+            .jumbotron{
+                background: url("{{ asset('uploads/businesses/')~business.image }}") no-repeat;
+                background-size: cover;
+            }
+            .jumbotron h1 span{
+                background-color: rgb(255, 255, 255);
+                color: #337ab7;
+            }
+            .jumbotron h1 small{
+                padding-bottom: 4px;
+                background: #337ab7;
+                color: white;
+            }
+        </style>
+    {% endblock %}
+    {% block content %}
+        <div id="iterinaire" class="modal modal-primary">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">×</span></button>
+                        <h4 class="modal-title">Directions</h4>
+                    </div>
+                    <div class="modal-body">
+                        <p>Choissier votre position et vos préférances:</p>
+                        <div class="input-group">
+                            <span class="input-group-addon"><i class="fa fa-map-marker"></i></span>
+                            <input id="start" type="text" class="form-control" placeholder="Votre adresse">
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-outline pull-left" data-dismiss="modal">Fermer</button>
+                        <button id="plan" type="button" class="btn btn-outline">Tracer le chemin</button>
+                    </div>
+                </div>
+                <!-- /.modal-content -->
+            </div>
+            <!-- /.modal-dialog -->
+        </div>
+        <div id="approuveModal" class="modal modal-danger">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">×</span></button>
+                        <h4 class="modal-title">Raison de refus du point d'intérêt:</h4>
+                    </div>
+                    <div class="modal-body">
+                        <p>Donnez la raison du refus:</p>
+                        <div class="input-group col-lg-12">
+                            <div class="form-group">
+                                <label>Commentaires</label>
+                                <textarea class="form-control" id="raison" placeholder="Le point d'intérêt est contre les conditions du site ..." required ></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button id="close" type="button" class="btn btn-outline pull-left" data-dismiss="modal">Fermer</button>
+                        <button id="disapprove" type="button" class="btn btn-outline">Envoyer</button>
+                    </div>
+                </div>
+                <!-- /.modal-content -->
+            </div>
+            <!-- /.modal-dialog -->
+        </div>
+        <div class="row">
+            <div class="jumbotron">
+                <h1><span>{{ business.name }}</span><small>{{ business.category.name }}</small></h1>
+            </div>
+        </div>
+        {% for flash_message in app.session.flashbag.get('info') %}
+            <div class="callout callout-info alert alert-dismissible">
+                <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+                <h4><i class="icon fa fa-info"></i> Info!</h4>
+                {{ flash_message }}
+            </div>
+        {% endfor %}
+        {% for flash_message in app.session.flashbag.get('alert') %}
+            <div class="callout callout-danger alert alert-dismissible">
+                <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+                <h4><i class="icon fa fa-info"></i> Alert!</h4>
+                {{ flash_message }}
+            </div>
+        {% endfor %}
+        <div class="col-lg-9">
+            <div class="list-group">
+                <div class="list-group-item active">
+                    <h4 class="list-group-item-heading text-center"><span class="glyphicon glyphicon-book" aria-hidden="true"></span> À propos de nous</h4>
+                </div>
+                <div class="list-group-item">
+                    <div class="media">
+                        <div class="media-left col-lg-2">
+                            <a href="#" class="thumbnail">
+                                <img class="" src="{{ asset('uploads/businesses/')~business.image }}" alt="...">
+                            </a>
+                        </div>
+                        <div class="media-body">
+                            <h4 class="media-heading"><a href="#">{{ business.category.name }}</a></h4>
+                            <p class="list-group-item-text">{{ business.description|raw }}</p>
+                            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="list-group-item active">
+                    <h4 class="list-group-item-heading text-center"><span class="glyphicon glyphicon-link" aria-hidden="true"></span> Site Web</h4>
+                </div>
+                <div class="list-group-item">
+                    <h4 class="list-group-item-text text-center"><a href="#">{{ business.website }}</a></h4>
+                </div>
+                <div class="list-group-item active">
+                    <h4 class="list-group-item-heading text-center"><span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span> Adresse</h4>
+                </div>
+                <div class="list-group-item">
+                    <div class="text-center">
+                        <h4 class="list-group-item-heading">Adresse</h4>
+                        <p class="list-group-item-text">{{ business.address }}</p>
+                        <h4 class="list-group-item-heading">GPS</h4>
+                        <p class="list-group-item-text">{{ business.lat }},{{ business.lng }}</p>
+                        <h4 class="list-group-item-heading">Téléphone</h4>
+                        <p class="list-group-item-text"><a href="tel:0638891757">0638891757</a></p>
+                        <h4 class="list-group-item-heading">E-mail</h4>
+                        <p class="list-group-item-text"><a href="mailto:Email@email.com">Email@Email.com</a></p>
+                    </div>
+                </div>
+                <div class="list-group-item active">
+                    <h4 class="list-group-item-heading text-center"><span class="glyphicon glyphicon-map-marker" aria-hidden="true"></span> Emplacement</h4>
+                </div>
+                <div class="list-group-item">
+                    <p class="list-group-item-text"><div id="map"></div></p>
+                    <div id="directions"></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3">
+            <div class="list-group">
+                <div class="list-group-item active">
+                    <h4 class="list-group-item-heading active text-center"><span class="glyphicon glyphicon-time" aria-hidden="true"></span> Horaire d'ouverture</h4>
+                </div>
+                <div class="list-group-item">
+                    <div class="block-center">
+                        <table class="table table-responsive table-stripped">
+                            {% set days = {0:'Lundi',1:'Mardi',2:'Mercredi',3:'Jeudi',4:'Vendredi',5:'Samedi',6:'Dimanche'} %}
+                            {% for opening in  business.openings %}
+                                <tr><td>{{ days[opening.day] }}</td><td class="opening">{{ opening.open }} - {{ opening.close }}</td></tr>
+                            {% endfor %}
+                        </table>
+                    </div>
+                </div>
+                <div class="list-group-item active">
+                    <h4 class="list-group-item-heading text-center"><span class="glyphicon glyphicon-tags" aria-hidden="true"></span> Tags</h4>
+                </div>
+                <div class="list-group-item">
+                    <a href="#"><span class="label label-default"><span class="glyphicon glyphicon-tag" aria-hidden="true"></span> School</span></a>
+                    <a href="#"><span class="label label-default"><span class="glyphicon glyphicon-tag" aria-hidden="true"></span> Education</span></a>
+                    <a href="#"><span class="label label-default"><span class="glyphicon glyphicon-tag" aria-hidden="true"></span> Books</span></a>
+                    <a href="#"><span class="label label-default"><span class="glyphicon glyphicon-tag" aria-hidden="true"></span> Studima</span></a>
+                </div>
+                <div class="list-group-item active">
+                    <h4 class="list-group-item-heading text-center"><span class="glyphicon glyphicon-road" aria-hidden="true"></span> Tracer la route</h4>
+                </div>
+                <div class="list-group-item">
+                    <button id="trace" class="btn btn-success btn-block">Go!</button>
+                </div>
+                <div class="list-group-item active">
+                    <h4 class="list-group-item-heading text-center"><span class="fa fa-gears" aria-hidden="true"></span> Actions</h4>
+                </div>
+                {% if app.user is not null and is_granted('IS_AUTHENTICATED_FULLY') %}
+                    {% if app.user.id == business.owner.id or is_granted('ROLE_ADMIN')%}
+                        <div class="list-group-item">
+                            <a href="{{ path('_editmybusiness', {'id': business.id}) }}" class="btn btn-success btn-block">Edit</a>
+                        </div>
+                    {% endif %}
+                {% endif %}
+                {% if app.user is not null and is_granted('IS_AUTHENTICATED_FULLY') %}
+                    {% if is_granted('ROLE_ADMIN')%}
+                        <div class="list-group-item">
+                            <input type="checkbox" name="approve" id="approve">
+                        </div>
+                    {% endif %}
+                {% endif %}
+                <div class="list-group-item">
+                    <input id="rating">
+                </div>
+            </div>
+        </div>
+    {% endblock %}
+{% block javascripts %}{{ parent() }}
+    <script src="{{ asset('bundles/business/js/star-rating.min.js') }}"></script>
+    <script src="{{ asset('bundles/business/js/bootstrap-switch.min.js') }}"></script>
+    <script type="text/javascript">
+        var styleArray = [
+            {
+                featureType: "all",
+                stylers: [
+                    { saturation: -80 }
+                ]
+            },{
+                featureType: "road.arterial",
+                elementType: "geometry",
+                stylers: [
+                    { hue: "#00ffee" },
+                    { saturation: 50 }
+                ]
+            },{
+                featureType: "poi.business",
+                elementType: "labels",
+                stylers: [
+                    { visibility: "off" }
+                ]
+            }
+        ];
+        function initMap() {
+            var directionsService = new google.maps.DirectionsService;
+            var directionsDisplay = new google.maps.DirectionsRenderer;
+            var myLatLng = {lat: {{ business.lat }}, lng: {{ business.lng}} };
+            var marker;
+            var marker_icon = new google.maps.MarkerImage("{{ asset('uploads/pins/')~business.category.id }}.png", new google.maps.Size(60, 60), new google.maps.Point(0,1), new google.maps.Point(20, 60));
+            // Create a map object and specify the DOM element for display.
+            var map = new google.maps.Map(document.getElementById('map'), {
+                center: myLatLng,
+                scrollwheel: true,
+                zoom: 16,
+                styles: styleArray,
+            });
+            directionsDisplay.setMap(map);
+            directionsDisplay.setOptions( { suppressMarkers: true } );
+            directionsDisplay.setPanel(document.getElementById('directions'));
+            var onChangeHandler = function() {
+                calculateAndDisplayRoute(directionsService, directionsDisplay,myLatLng,map);
+            };
+            $("#plan").on('click',onChangeHandler);
+            marker = new google.maps.Marker({
+                position: myLatLng,
+                map: map,
+                icon : marker_icon,
+            });
+            var input = (document.getElementById('start'));
+            var autocomplete = new google.maps.places.Autocomplete(input);
+        }
+        function calculateAndDisplayRoute(directionsService, directionsDisplay,MyLatLng,map) {
+            directionsService.route({
+                origin: document.getElementById('start').value,
+                destination: MyLatLng,
+                travelMode: google.maps.TravelMode.DRIVING
+            }, function(response, status) {
+                var markeur = new google.maps.Marker({});
+                if (status === google.maps.DirectionsStatus.OK) {
+                    markeur.setMap(null);
+                    directionsDisplay.setDirections(response);
+                    var leg = response.routes[ 0 ].legs[ 0 ];
+                    markeur = new google.maps.Marker({
+                        position: leg.start_location,
+                        map: map,
+                        animation: google.maps.Animation.DROP,
+                    });
+                    $('#iterinaire').modal('hide');
+                } else {
+                    window.alert('Directions request failed due to ' + status);
+                }
+            });
+        }
+        $(function () {
+            $('input[name="approve"]').bootstrapSwitch({
+                onText: 'Apprové',
+                offText: 'Non-approuvé',
+                onColor: 'success',
+                offColor: 'danger',
+                labelWidth: '128',
+                state: {{ business.approved ? 1 : 0 }},
+            });
+            $('input[name="approve"]').on('switchChange.bootstrapSwitch', function(event, state) {
+                console.log(this); // DOM element
+                console.log(event); // jQuery event
+                console.log(state); // true | false
+                if(state == true){
+                    var request = $.ajax({
+                        url: "{{ path('approuve') }}",
+                        type: "POST",
+                        data: {
+                            business: {{ business.id }},
+                            approve: state,
+                        },
+                        dataType: "json",
+                        success: function (response) {
+                            var res = JSON.parse(JSON.stringify(response));
+                            console.log(res);
+                        }
+                    });
+                }else{
+                    $("#raison").val("");
+                    $("#approuveModal").modal('show');
+                    $("#close").on('click', function () {
+                        $('input[name="approve"]').bootstrapSwitch('state',true);
+                    })
+                    $("#disapprove").on('click', function () {
+                        var raison = $("#raison").val();
+                        var request = $.ajax({
+                            url: "{{ path('approuve') }}",
+                            type: "POST",
+                            data: {
+                                business: {{ business.id }},
+                                approve: state,
+                                raison: raison
+                            },
+                            dataType: "json",
+                            success: function (response) {
+                                var res = JSON.parse(JSON.stringify(response));
+                                if(res.reponse = true){
+                                    $("#approuveModal").modal('hide');
+                                }
+                            }
+                        });
+                    });
+                }
+            });
+            $('#rating').rating({size:'xs'});
+            function setTime(data){
+                var ohours = Math.floor( data / 60);
+                var ominutes = data - (ohours * 60);
+
+                if(ohours.toString().length == 1) ohours = '0' + ohours;
+                if(ominutes.toString().length == 1) ominutes = '0' + ominutes;
+                if (ohours >= 12) {
+                    if (ohours == 12) {
+                        ohours = ohours;
+                        ominutes = ominutes + " PM";
+                    } else {
+                        ohours = ohours - 12;
+                        ominutes = ominutes + " PM";
+                    }
+                } else {
+                    ohours = ohours;
+                    ominutes = ominutes + " AM";
+                }
+                if (ohours == 0) {
+                    ohours = 12;
+                    ominutes = ominutes;
+                }
+                return ohours+':'+ominutes;
+            }
+            $.each($('.opening'), function (index) {
+                var opening = $(this).html().split("-");
+                console.log(opening)
+                $(this).html(setTime(parseInt(opening[0]))+' - '+setTime(parseInt(opening[1])));
+            });
+            $('#trace').on('click', function () {
+                $('#iterinaire').modal('show')
+            })
+        });
+    </script>
+{% endblock %}
+{% block mainmapscript %}{% endblock %}
+{% block mainmap %}{% endblock %}{% block verticallogin %}{% endblock %}

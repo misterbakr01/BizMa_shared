@@ -1,0 +1,39 @@
+<div class="row">
+    <div class="col-xs-12">
+        <div class="box">
+            <div class="box-header">
+                <i class="fa fa-suitcase"></i>
+                <h3 class="box-title">Businesses</h3>
+                <div class="box-tools pull-right">
+                    <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+                    </button>
+                    <button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button>
+                </div>
+            </div>
+            <!-- /.box-header -->
+            <div class="box-body">
+                <table id="example1" class="table">
+                    <thead>
+                    <tr><th>Business</th><th>Owner</th><th>Actions</th></tr>
+                    </thead>
+                    <tbody>
+                    {% for business in businesses %}
+                        <tr>
+                            <td><a href="{{ path('_showbusiness',{id:business.id}) }}" target="_blank">{{ business.name }}</a></td>
+                            <td><a href="#">{{ business.owner.username  }}</a></td>
+                            <td>
+                                <div class="btn-group">
+                                    <a href="{{ path('_editbusiness',{id:business.id}) }}" title="Modifier" class="btn btn-default bg-blue"><i class="fa fa-edit"></i></a>
+                                    <a href="{{ path('_deletebusiness',{id:business.id}) }}" title="Supprimer" class="btn btn-default bg-red"><i class="fa fa-trash"></i></a>
+                                </div>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <!-- /.box-body -->
+        </div>
+        <!-- /.box -->
+    </div>
+</div>

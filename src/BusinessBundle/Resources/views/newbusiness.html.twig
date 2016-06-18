@@ -1,0 +1,335 @@
+{% extends '@Admin/Default/index.html.twig' %}
+{% block title %} Add new Post {{ parent() }}{% endblock %}
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('bundles/avanzuadmintheme/vendor/adminlte/plugins/iCheck/all.css') }}">
+    <link rel="stylesheet" href="{{ asset('bundles/business/css/normalize.css') }}">
+    <link rel="stylesheet" href="{{ asset('bundles/business/css/ion.rangeSlider.css') }}">
+    <link rel="stylesheet" href="{{ asset('bundles/business/css/ion.rangeSlider.skinNice.css') }}">
+    <link rel="stylesheet" href="{{ asset('bundles/avanzuadmintheme/vendor/adminlte/plugins/select2/select2.min.css') }}">
+    <style type="text/css">
+        #map { height: 250px;
+            width:100%; }
+        .map-address{
+            width:60%;!important;
+            margin-top: 8px;
+        }
+    </style>
+    {% stylesheets '@BusinessBundle/Resources/public/css/main.css'
+    '@BusinessBundle/Resources/public/css/normalize.css' '@BusinessBundle/Resources/public/css/ion.rangeSlider.css' filter='cssrewrite' %}{% endstylesheets %}
+{% endblock %}
+{% block page_content %}
+    <div class="center-block box box-info col-lg-8">
+        <div class="box-header">
+            <i class="fa fa-suitcase"></i>
+            <h3 class="box-title">Ajouter un nouveau Point d'intérêt:</h3>
+        </div>
+        <div class="box-body">
+            {{ form_start(form) }}
+            {{ form_row(form.name,{'label':"Nom du point d'intérêt"}) }}
+            {{ form_row(form.description,{'label':"Description"}) }}
+            {{ form_row(form.category,{'label':"Catégorie"}) }}
+            {{ form_row(form.website,{'label':"Site web"}) }}
+            {{ form_row(form.email,{'label':"E-mail:"}) }}
+            {{ form_row(form.phone,{'label':"Téléphone"}) }}
+            <div style="text-align: center;">
+                <div class="box" style="border: 1px solid silver"> {# // change style in stylesheet#}
+                    <div class="box-head"><label>Horaire d'ouverture</label></div>
+                    <div class="box-body">
+                        <div class="checkboxes">
+                            <div class="btn-group" data-toggle="buttons">
+                                <label class="btn btn-primary">
+                                    <input type="checkbox" id="monday" autocomplete="off"> Lundi
+                                </label>
+                                <label class="btn btn-primary">
+                                    <input type="checkbox" id="tuesday" autocomplete="off"> Mardi
+                                </label>
+                                <label class="btn btn-primary">
+                                    <input type="checkbox" id="wednesday" autocomplete="off"> Mercredi
+                                </label>
+                                <label class="btn btn-primary">
+                                    <input type="checkbox" id="thursday" autocomplete="off"> Jeudi
+                                </label>
+                                <label class="btn btn-primary">
+                                    <input type="checkbox" id="friday" autocomplete="off"> Vendredi
+                                </label>
+                                <label class="btn btn-primary">
+                                    <input type="checkbox" id="saturday" autocomplete="off"> Samedi
+                                </label>
+                                <label class="btn btn-primary">
+                                    <input type="checkbox" id="sunday" autocomplete="off"> Dimanche
+                                </label>
+                            </div>
+                        </div>
+                        <ul class="openings" data-prototype="{{ form_widget(form.openings.vars.prototype)|e }}">
+                            {% for opening in form.openings %}
+                                {{ form_row(opening,{'label':days[opening.vars.name]}) }}
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            {{ form_row(form.address,{'label':"Adresse"}) }}
+            <div id="map"></div>
+            {{ form_row(form.city,{'label':"Ville"}) }}
+            {{ form_row(form.file,{'label':"Photo de couverture"}) }}
+            {{ form_row(form.submit,{'label':"Ajouter"}) }}
+            {{ form_end(form) }}
+        </div>
+    </div>
+{% endblock page_content %}
+{% block javascripts %} {{ parent() }}
+    {{ tinymce_init() }}
+    <script src="{{ asset('bundles/home/js/jquery-2.2.2.js') }}"></script>
+    <script src="{{ asset('assetic/admin_lte_forms_js_icheck_5.js') }}"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.2/css/select2.min.css" rel="stylesheet" />
+    <script src="{{ asset('bundles/business/js/ion.rangeSlider.min.js') }}"></script>
+    <script src="{{ asset('bundles/avanzuadmintheme/vendor/adminlte/plugins/select2/select2.full.js') }}"></script>
+    <script src="{{ asset('bundles/avanzuadmintheme/vendor/adminlte/plugins/input-mask/jquery.inputmask.js') }}"></script>
+    <script type="text/javascript">
+            function initMap() {
+                var myLatLng = {lat: 34.0305677, lng: -6.8167921};
+                var marker;
+                // Create a map object and specify the DOM element for display.
+                var map = new google.maps.Map(document.getElementById('map'), {
+                    center: myLatLng,
+                    scrollwheel: true,
+                    zoom: 16
+                });
+                var geocoder = new google.maps.Geocoder;
+                var infowindow = new google.maps.InfoWindow;
+                map.addListener('click', function(e) {
+                    var lat = e.latLng.lat(),lng = e.latLng.lng();
+                    var latlng = {lat: lat, lng: lng};
+                    var address;
+                    geocoder.geocode({'location': latlng}, function(results, status) {
+                        if (status === google.maps.GeocoderStatus.OK) {
+                            if (results[0]) {
+                                console.log(results);
+                                if(marker){
+                                    marker.setPosition(latlng)
+                                    map.setCenter(latlng)
+                                }else{
+                                    marker = new google.maps.Marker({
+                                        position: latlng,
+                                        map: map
+                                    });
+                                }
+                                infowindow.setContent(results[0].formatted_address);
+                                address = results[0].formatted_address;
+                                $("#business_address").val(address);
+                                infowindow.open(map, marker);
+                            } else {
+                                window.alert('No results found');
+                            }
+                        } else {
+                            window.alert('Geocoder failed due to: ' + status);
+                        }
+                    });
+                    $("#business_lng").val(lng);
+                    $("#business_lat").val(lat);
+                    $("#business_address").val(address);
+                });
+                /* Input autocomplete */
+                var input = /** @type {!HTMLInputElement} */(
+                        document.getElementById('business_address'));
+                $('#business_address').addClass('col-lg-4');
+                var types = document.getElementById('type-selector');
+                map.controls[google.maps.ControlPosition.TOP_LEFT].push(input);
+                map.controls[google.maps.ControlPosition.TOP_LEFT].push(types);
+
+                var autocomplete = new google.maps.places.Autocomplete(input);
+                //autocomplete.bindTo('bounds', map);
+
+                var infowindow = new google.maps.InfoWindow();
+                var marker = new google.maps.Marker({
+                    map: map,
+                    anchorPoint: new google.maps.Point(0, -29)
+                });
+
+                autocomplete.addListener('place_changed', function() {
+                    infowindow.close();
+                    marker.setVisible(false);
+                    var place = autocomplete.getPlace();
+                    if (!place.geometry) {
+                        $('#business_address').addClass('has-warning')
+                        window.alert("Autocomplete's returned place contains no geometry");
+                        return;
+                    }
+
+                    // If the place has a geometry, then present it on a map.
+                    if (place.geometry.viewport) {
+                        map.fitBounds(place.geometry.viewport);
+                    } else {
+                        map.setCenter(place.geometry.location);
+                        map.setZoom(17);  // Why 17? Because it looks good.
+                    }
+                    marker.setIcon(/** @type {google.maps.Icon} */({
+                        url: place.icon,
+                        size: new google.maps.Size(71, 71),
+                        origin: new google.maps.Point(0, 0),
+                        anchor: new google.maps.Point(17, 34),
+                        scaledSize: new google.maps.Size(35, 35)
+                    }));
+                    marker.setPosition(place.geometry.location);
+                    marker.setVisible(true);
+
+                    var address = '';
+                    if (place.address_components) {
+                        address = [
+                            (place.address_components[0] && place.address_components[0].short_name || ''),
+                            (place.address_components[1] && place.address_components[1].short_name || ''),
+                            (place.address_components[2] && place.address_components[2].short_name || '')
+                        ].join(' ');
+                    }
+
+                    infowindow.setContent('<div><strong>' + place.name + '</strong><br>' + address);
+                    infowindow.open(map, marker);
+                });
+
+            }
+            function geocodeLatLng(geocoder, map, infowindow, lat, lng) {
+                var latlng = {lat: lat, lng: lng};
+                var marker;
+                geocoder.geocode({'location': latlng}, function(results, status) {
+                    if (status === google.maps.GeocoderStatus.OK) {
+                        if (results[0]) {
+                            console.log(results);
+                            if(marker){
+                                marker.setPosition(latLng)
+                            }else{
+                                marker = new google.maps.Marker({
+                                    position: latlng,
+                                    map: map
+                                });
+                            }
+                            infowindow.setContent(results[0].formatted_address);
+                            infowindow.open(map, marker);
+                        } else {
+                            window.alert('No results found');
+                        }
+                    } else {
+                        window.alert('Geocoder failed due to: ' + status);
+                    }
+                });
+            }
+            function setTime(data){
+                var ohours = Math.floor( data / 60);
+                var ominutes = data - (ohours * 60);
+
+                if(ohours.toString().length == 1) ohours = '0' + ohours;
+                if(ominutes.toString().length == 1) ominutes = '0' + ominutes;
+                if (ohours >= 12) {
+                    if (ohours == 12) {
+                        ohours = ohours;
+                        ominutes = ominutes + " PM";
+                    } else {
+                        ohours = ohours - 12;
+                        ominutes = ominutes + " PM";
+                    }
+                } else {
+                    ohours = ohours;
+                    ominutes = ominutes + " AM";
+                }
+                if (ohours == 0) {
+                    ohours = 12;
+                    ominutes = ominutes;
+                }
+                return ohours+':'+ominutes;
+            }
+            function setIonslider(index,day){
+                $("#business_openings_"+index+"_day").val(day);
+                $("#business_openings_"+index+"_slider").ionRangeSlider({
+                    keyboard: true,
+                    min: 0,
+                    max: 1440,
+                    from: 480,
+                    to: 1080,
+                    type: 'double',
+                    step: 15,
+                    grid: true,
+                    grid_num:48,
+                    prettify:function(value){
+                        var ohours = Math.floor( value / 60);
+                        var ominutes = value - (ohours * 60);
+
+                        if(ohours.toString().length == 1) ohours = '0' + ohours;
+                        if(ominutes.toString().length == 1) ominutes = '0' + ominutes;
+                        if (ohours >= 12) {
+                            if (ohours == 12) {
+                                ohours = ohours;
+                                ominutes = ominutes + " PM";
+                            } else {
+                                ohours = ohours - 12;
+                                ominutes = ominutes + " PM";
+                            }
+                        } else {
+                            ohours = ohours;
+                            ominutes = ominutes + " AM";
+                        }
+                        if (ohours == 0) {
+                            ohours = 12;
+                            ominutes = ominutes;
+                        }
+                        return ohours+':'+ominutes;
+                    },
+                    onStart: function (data) {
+                        var open = data.from;
+                        var close = data.to;
+                        $("#business_openings_"+index+"_open").val(open)
+                        $("#business_openings_"+index+"_close").val(close)
+                    },
+                    onChange:  function (data) {
+                        var open = data.from;
+                        var close = data.to;
+                        $("#business_openings_"+index+"_open").val(open)
+                        $("#business_openings_"+index+"_close").val(close)
+                    }
+                });
+            }
+            $(function() {
+                var index;
+                {% for opening in form.openings %}
+                index = {{ opening.vars.name }};
+                setIonslider(index,index);
+                {% endfor %}
+                $('select').select2();
+                $('#monday,#tuesday,#wednesday,#thursday,#friday,#saturday,#sunday').iCheck({
+                    checkboxClass: 'icheckbox_square-blue',
+                    increaseArea: '20%' // optional
+                });
+                var days = ['monday','tuesday','wednesday','thursday','friday','saturday','sunday'];
+                var $collectionHolder;
+                $collectionHolder = $('ul.openings');
+
+                // count the current form inputs we have (e.g. 2), use that as the new
+                // index when inserting a new item (e.g. 2)
+                $collectionHolder.data('index', $collectionHolder.find(':input').length);
+                var prototype = $collectionHolder.data('prototype');
+                $.each(days, function (i) {
+                    $('#'+days[i]).on('ifChecked', function(event){
+                        // get the new index
+                        var index = $collectionHolder.data('index');
+                        if($(this).is(':checked')){
+                            var newForm = prototype.replace(/__name__/g, index);
+                            // increase the index with one for the next item
+                            $collectionHolder.data('index', index + 1);
+                            // Display the form in the page in an li, before the "Add a tag" link li
+                            var $newFormLi = $('<div><label>'+$(this).parent().parent().text()+'</label></div>').append(newForm);
+                            $newFormLi.appendTo($collectionHolder);
+                            var day = days.indexOf(days[i]);
+                            console.log(prototype)
+                            setIonslider(index,day);
+                        }
+                    });
+                    $('#'+days[i]).on('ifUnchecked', function(event){
+                        var day = days.indexOf(days[i]);
+                        $('input[value='+day+']').parent().parent().remove();
+                    });
+                });
+            });
+    </script>
+    <script async defer
+            src="https://maps.googleapis.com/maps/api/js?libraries=places&key=AIzaSyDiBZbkfj5jjX5lsihBDY1ShMceYzqG_p4&callback=initMap">
+    </script>
+{% endblock javascripts %}

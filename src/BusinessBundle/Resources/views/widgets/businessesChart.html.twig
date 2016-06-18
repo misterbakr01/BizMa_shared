@@ -1,0 +1,37 @@
+
+<script>
+       var data = {
+           labels: [
+               {% for business in businesses %}
+               "{{ business.name }}",
+               {% endfor %}
+           ],
+           datasets: [
+               {
+                   data: [
+                       {% for business in businesses %}
+                       {{ business.Visits }},
+                       {% endfor %}
+                   ],
+                   backgroundColor: [
+                       "#FF6384",
+                       "#36A2EB",
+                       "#FFCE56",
+                       "#FF6384",
+                       "#36A2EB",
+                   ],
+                   hoverBackgroundColor: [
+                       "#FF6384",
+                       "#36A2EB",
+                       "#FFCE56",
+                       "#FF6384",
+                       "#36A2EB",
+                   ]
+               }]
+       };
+       var ctx = document.getElementById("pieChart");
+       var myDoughnutChart = new Chart(ctx, {
+           type: 'doughnut',
+           data: data,
+       });
+</script>

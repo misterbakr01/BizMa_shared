@@ -1,0 +1,68 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <h1>Business</h1>
+
+    <table>
+        <tbody>
+            <tr>
+                <th>Id</th>
+                <td>{{ business.id }}</td>
+            </tr>
+            <tr>
+                <th>Name</th>
+                <td>{{ business.name }}</td>
+            </tr>
+            <tr>
+                <th>Description</th>
+                <td>{{ business.description }}</td>
+            </tr>
+            <tr>
+                <th>Address</th>
+                <td>{{ business.address }}</td>
+            </tr>
+            <tr>
+                <th>Adding_date</th>
+                <td>{% if business.addingdate %}{{ business.addingdate|date('Y-m-d H:i:s') }}{% endif %}</td>
+            </tr>
+            <tr>
+                <th>Last_edit</th>
+                <td>{% if business.lastedit %}{{ business.lastedit|date('Y-m-d H:i:s') }}{% endif %}</td>
+            </tr>
+            <tr>
+                <th>Lng</th>
+                <td>{{ business.lng }}</td>
+            </tr>
+            <tr>
+                <th>Lat</th>
+                <td>{{ business.lat }}</td>
+            </tr>
+            <tr>
+                <th>Image</th>
+                <td>{{ business.image }}</td>
+            </tr>
+            <tr>
+                <th>Rating</th>
+                <td>{{ business.rating }}</td>
+            </tr>
+            <tr>
+                <th>Website</th>
+                <td>{{ business.website }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <ul>
+        <li>
+            <a href="{{ path('business_index') }}">Back to the list</a>
+        </li>
+        <li>
+            <a href="{{ path('business_edit', { 'id': business.id }) }}">Edit</a>
+        </li>
+        <li>
+            {{ form_start(delete_form) }}
+                <input type="submit" value="Delete">
+            {{ form_end(delete_form) }}
+        </li>
+    </ul>
+{% endblock %}

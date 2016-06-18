@@ -1,0 +1,27 @@
+app_user:
+    resource: "@AppBundle/Controller/UserController.php"
+    type:     annotation
+
+admin:
+    resource: "@AdminBundle/Controller/"
+    type:     annotation
+    prefix:   /
+
+business:
+    resource: "@BusinessBundle/Controller/"
+    type:     annotation
+    prefix:   /
+
+home:
+    resource: "@HomeBundle/Controller/"
+    type:     annotation
+
+app:
+    resource: "@AppBundle/Controller/"
+    type:     annotation
+
+fos_user:
+    resource: "@FOSUserBundle/Resources/config/routing/all.xml"
+
+fos_js_routing:
+    resource: "@FOSJsRoutingBundle/Resources/config/routing/routing.xml"

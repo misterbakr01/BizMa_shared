@@ -1,0 +1,104 @@
+{% extends 'AvanzuAdminThemeBundle:layout:base-layout.html.twig' %}
+{% import "AvanzuAdminThemeBundle:layout:macros.html.twig" as macro %}
+{% block title 'Tableau de bord'%}
+{% block page_title 'Tableau de bord' %}
+{% block avanzu_navbar %}
+    {{ render(controller('AvanzuAdminThemeBundle:Navbar:messages')) }}
+    {{ render(controller('AvanzuAdminThemeBundle:Navbar:notifications')) }}
+    {{ render(controller('AvanzuAdminThemeBundle:Navbar:tasks')) }}
+    <li class="dropdown user user-menu">
+        <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+            <img src="{% if app.user.profilePicturePath is null %}{{ asset('uploads/profilepics/default.png') }}{% else %}{{ asset('uploads/profilepics/'~app.user.profilePicturePath) }}{% endif %}" alt="{{ app.user.username }}" class="user-image">
+            <span class="hidden-xs">{{ user.name }}</span>
+        </a>
+        <ul class="dropdown-menu">
+            <!-- User image -->
+            <li class="user-header">
+                <img src="{% if app.user.profilePicturePath is null %}{{ asset('uploads/profilepics/default.png') }}{% else %}{{ asset('uploads/profilepics/'~app.user.profilePicturePath) }}{% endif %}" alt="{{ app.user.username }}" class="img-circle">
+                <p>
+                    {{user.name}} - {{user.title}}
+                    <small>{{ 'Member depuis %date%'|trans({'%date%': user.memberSince|date('m.Y') }, 'AvanzuAdminTheme') }}</small>
+                </p>
+            </li>
+            <!-- Menu Body -->
+            <li class="user-body">
+                <div class="col-xs-6 text-center">
+                    <a href="#">Profile</a>
+                </div>
+                <div class="col-xs-6 text-center">
+                    <a href="#">Sales</a>
+                </div>
+            </li>
+            <!-- Menu Footer-->
+            <li class="user-footer">
+                <div class="pull-left">
+                    {#<a href="{{ path('avanzu_admin_profile', {'userid' : user.id}) }}" class="btn btn-default btn-flat">{{'Profile'|trans({}, 'AvanzuAdminTheme')}}</a>#}
+                </div>
+                <div class="pull-right">
+                    <a href="{{ path('fos_user_security_logout') }}" class="btn btn-default btn-flat">{{ 'Sign out'|trans({}, 'AvanzuAdminTheme') }}</a>
+                </div>
+            </li>
+        </ul>
+    </li>
+{% endblock %}
+{% block avanzu_logo %}
+    <a href="{{ path('_dashboard') }}" class="logo">
+        <!-- Add the class icon to your logo image or logo icon to add the margining -->
+        <img src="{{ asset('bundles/home/images/brand.png') }}" alt="Studima" class="navbar-brand"
+             style="padding: 0">
+        BizMa
+    </a>
+{% endblock %}
+    {% block avanzu_sidebar %}
+        {% if app.user is not null and is_granted('IS_AUTHENTICATED_FULLY') %}
+            <div class="user-panel">
+                <div class="pull-left image">
+                    <img src="{% if app.user.profilePicturePath is null %}{{ asset('uploads/profilepics/default.png') }}{% else %}{{ asset('uploads/profilepics/'~app.user.profilePicturePath) }}{% endif %}" alt="Studima" class="img-circle">
+                </div>
+                <div class="pull-left info">
+                    <p>{{ user.username }}</p>
+                </div>
+            </div>
+            {{ render(controller('AvanzuAdminThemeBundle:Sidebar:searchForm')) }}
+        {% endif %}
+        {{ render(controller('AvanzuAdminThemeBundle:Sidebar:menu', {'request':app.request})) }}
+        <ul class="sidebar-menu">
+            <li class="header">Navigation</li>
+            <li><a href="{{ path('_dashboard') }}">Tableau de bord</a></li>
+            <li><a href="{{ path('_newbusiness') }}">Nouveau point d'intérêt</a></li>
+        </ul>
+    {% endblock %}
+{% block page_content %}
+    <div class="row">
+        {{ render(controller('BusinessBundle:Dashboard:totalBusinesses')) }}
+        {{ render(controller('BusinessBundle:Dashboard:approvedBusinesses')) }}
+    </div>
+    <div class="row">
+        <div class="col-md-6">
+            <div class="box box-danger">
+                <div class="box-header with-border">
+                    <h3 class="box-title"><span class="fa fa-eye"></span> Nombre de visite pour chaque point:</h3>
+                    <div class="box-tools pull-right">
+                        <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="box-body">
+                    {% if user.businesses is empty %}
+                    Vous ne possédez pas de points d'intérêt. Ajouter un <a href="{{ path('_newbusiness') }}">ici</a>.
+                    {% endif %}
+                    <canvas id="pieChart" style="min-height: 133px; width: 256px;"></canvas>
+                </div>
+                <!-- /.box-body -->
+            </div>
+        </div>
+        {{ render(controller('BusinessBundle:Dashboard:businessesStatus')) }}
+    </div>
+    {{ render(controller('BusinessBundle:Dashboard:userBusinesses')) }}
+{% endblock %}
+{% block javascripts %}
+    {{ parent() }}
+    {#<script src="{{ asset('bundles/avanzuadmintheme/vendor/adminlte/plugins/chartjs/Chart.js') }}"></script>#}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.1.4/Chart.js"></script>
+    {{ render(controller('BusinessBundle:Dashboard:businessesChart')) }}
+{% endblock %}

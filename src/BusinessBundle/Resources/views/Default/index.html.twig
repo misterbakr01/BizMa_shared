@@ -1,0 +1,36 @@
+{% block mainmap %}
+    <div class="row">
+        <div id="mainmap">
+
+        </div>
+        <div class="filters">
+            <div class="col-lg-10">
+                <div class="form-group">
+                    <div class="input-group col-md-8 center-block">
+                        <input type="text" class="form-control input-lg" style="width: 33.33333%" placeholder="Chercher ...">
+                        <span class="input-group-addon"></span>
+                            <select id="category" class="form-control input-lg">
+                                <option value="">Category</option>
+                                {% for category in categories %}
+                                    <option value="{{ category.id }}">{{ category.name }}</option>
+                                {% endfor %}
+                            </select>
+                        <span class="input-group-addon"></span>
+                            <select id="city" class="form-control input-lg">
+                                <option value="">City</option>
+                                {% for city in cities %}
+                                    <option value="{{ city.id }}">{{ city.name }}</option>
+                                {% endfor %}
+                            </select>
+                    </div><!-- /input-group -->
+                </div>
+            </div>
+            <div class="col-lg-2 search">
+                <button id="filter" class="btn btn-success center-block btn-block">Filtrer</button>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+{% block javascripts %}
+
+{% endblock %}

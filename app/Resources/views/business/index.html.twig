@@ -1,0 +1,57 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <h1>Business list</h1>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Name</th>
+                <th>Description</th>
+                <th>Address</th>
+                <th>Adding_date</th>
+                <th>Last_edit</th>
+                <th>Lng</th>
+                <th>Lat</th>
+                <th>Image</th>
+                <th>Rating</th>
+                <th>Website</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for business in businesses %}
+            <tr>
+                <td><a href="{{ path('business_show', { 'id': business.id }) }}">{{ business.id }}</a></td>
+                <td>{{ business.name }}</td>
+                <td>{{ business.description }}</td>
+                <td>{{ business.address }}</td>
+                <td>{% if business.addingdate %}{{ business.addingdate|date('Y-m-d H:i:s') }}{% endif %}</td>
+                <td>{% if business.lastedit %}{{ business.lastedit|date('Y-m-d H:i:s') }}{% endif %}</td>
+                <td>{{ business.lng }}</td>
+                <td>{{ business.lat }}</td>
+                <td>{{ business.image }}</td>
+                <td>{{ business.rating }}</td>
+                <td>{{ business.website }}</td>
+                <td>
+                    <ul>
+                        <li>
+                            <a href="{{ path('business_show', { 'id': business.id }) }}">show</a>
+                        </li>
+                        <li>
+                            <a href="{{ path('business_edit', { 'id': business.id }) }}">edit</a>
+                        </li>
+                    </ul>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <ul>
+        <li>
+            <a href="{{ path('business_new') }}">Create a new entry</a>
+        </li>
+    </ul>
+{% endblock %}

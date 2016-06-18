@@ -1,0 +1,5 @@
+{% extends 'base.html.twig' %}
+{% block title %}Home {{ parent() }}{% endblock %}
+{% block content %}
+    {% include '@Business/Default/bus_thumbnail.html.twig' with businesses %}
+{% endblock %}

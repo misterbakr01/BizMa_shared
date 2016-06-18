@@ -1,0 +1,12 @@
+{% extends 'base.html.twig' %}
+{% block stylesheets %}
+    {{ parent() }}
+{% endblock %}
+{% block title %}{{ parent() }}{% endblock %}
+{% block content %}
+    {% block verticallogin %}{% endblock %}
+    <div class="center-block" style="width: 50%;">
+        {% block fos_user_content %}
+        {% endblock fos_user_content %}
+    </div>
+{% endblock %}
